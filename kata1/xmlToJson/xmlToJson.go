@@ -3,13 +3,14 @@ package main
 import (
     "encoding/xml"
     "fmt"
+    "encoding/json"
 )
 
 func main() {
 
     type Stock struct {
         ProductList  []struct {
-            Sku string `xml:"sku" json:"quantity"`
+            Sku string `xml:"sku" json:"sku"`
             Quantity  int `xml:"quantity" json:"quantity"`
         } `xml:"Product" json:"products"`
     }
@@ -26,9 +27,15 @@ func main() {
         </Product>
     </ProductList>`)
 
-    var p Stock
-    xml.Unmarshal(xmlData, &p)
+    var stock Stock
+    xml.Unmarshal(xmlData, &stock)
+    stockJson, err := json.Marshal(stock)
 
+    if err != nil {
+        fmt.Println("Houston, we got a problem.")
+    }
 
-    fmt.Println(p)
+    fmt.Println("The xml is: " + string(xmlData))
+    fmt.Println(stock)
+    fmt.Println("The json is " + string(stockJson))
 }
