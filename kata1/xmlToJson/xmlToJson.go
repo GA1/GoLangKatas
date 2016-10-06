@@ -29,8 +29,10 @@ func main() {
         </Product>
     </ProductList>`)
 
+    for i := 0; i < 10; i++ {
+        fmt.Println(xmlToJson(xmlData))
+    }
 
-    fmt.Println(xmlToJson(xmlData))
 }
 
 func xmlToJson(xmlData []byte) (string, error) {
