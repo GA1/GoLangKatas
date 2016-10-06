@@ -4,6 +4,8 @@ import (
     "encoding/xml"
     "fmt"
     "encoding/json"
+    "time"
+    "math/rand"
 )
 
 type Stock struct {
@@ -33,6 +35,7 @@ func main() {
 
 func xmlToJson(xmlData []byte) (string, error) {
 
+    time.Sleep(time.Duration(rand.Int31n(1999)) * time.Millisecond)
     var stock Stock
     errXml := xml.Unmarshal(xmlData, &stock)
     if errXml != nil {
