@@ -6,14 +6,14 @@ import (
     "encoding/json"
 )
 
-func main() {
+type Stock struct {
+    ProductList  []struct {
+        Sku string `xml:"sku" json:"sku"`
+        Quantity  int `xml:"quantity" json:"quantity"`
+    } `xml:"Product" json:"products"`
+}
 
-    type Stock struct {
-        ProductList  []struct {
-            Sku string `xml:"sku" json:"sku"`
-            Quantity  int `xml:"quantity" json:"quantity"`
-        } `xml:"Product" json:"products"`
-    }
+func main() {
 
     xmlData := []byte(`<?xml version="1.0" encoding="UTF-8" ?>
     <ProductList>
@@ -27,15 +27,25 @@ func main() {
         </Product>
     </ProductList>`)
 
-    var stock Stock
-    xml.Unmarshal(xmlData, &stock)
-    stockJson, err := json.Marshal(stock)
 
-    if err != nil {
-        fmt.Println("Houston, we got a problem.")
+    fmt.Println(xmlToJson(xmlData))
+}
+
+func xmlToJson(xmlData []byte) (string, error) {
+
+    var stock Stock
+    errXml := xml.Unmarshal(xmlData, &stock)
+    if errXml != nil {
+        return "", errXml
     }
 
-    fmt.Println("The xml is: " + string(xmlData))
-    fmt.Println(stock)
-    fmt.Println("The json is " + string(stockJson))
+    stockJson, errJson := json.Marshal(stock)
+
+    if errJson != nil {
+        return "", errJson
+    }
+
+    return string(stockJson), nil
 }
+
+
