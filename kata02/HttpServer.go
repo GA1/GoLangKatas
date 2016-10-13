@@ -4,10 +4,11 @@ import (
     "github.com/gin-gonic/gin"
     "fmt"
     "flag"
+    "strconv"
 )
 
 func main() {
-    var port = flag.Int("port", 1234, "help message for flagname")
+    var port = flag.Int("port", 1234, "The port of the service")
     flag.Parse()
     fmt.Println(*port)
 
@@ -17,5 +18,8 @@ func main() {
             "message": "pong",
         })
     })
-    r.Run("0.0.0.0:8081") // listen and server on 0.0.0.0:8080
+
+    portStr := strconv.Itoa(*port)
+    fmt.Println(portStr)
+    r.Run("0.0.0.0:" + portStr)
 }
