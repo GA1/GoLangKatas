@@ -21,6 +21,8 @@ func main() {
         })
     })
 
+    fmt.Println(generateProducts())
+
     portStr := strconv.Itoa(*port)
     fmt.Println("The port chosen is: " + portStr)
     r.Run("0.0.0.0:" + portStr)
@@ -35,3 +37,15 @@ func randomString(length int) string {
     }
     return string(result)
 }
+
+func generateProducts() string {
+    rand.Seed(time.Now().UTC().UnixNano())
+    var xml = "\n\t" + ""
+    var N = rand.Intn(10)
+    for i := 0; i < N; i++ {
+        xml = xml + "\n\t<Product>\n\t\t<sku>" + randomString(40) + "</sku>\n\t\t<quantity>42</quantity>\n\t</Product>"
+    }
+    return xml
+}
+
+
