@@ -9,13 +9,17 @@ import (
     "time"
 )
 
+func init() {
+    rand.Seed(time.Now().UTC().UnixNano())
+}
+
 func main() {
     var port = flag.Int("port", 1234, "The port of the service")
     flag.Parse()
     fmt.Println(*port)
 
     r := gin.Default()
-    r.GET("/ping", func(c *gin.Context) {
+    r.GET("/xml", func(c *gin.Context) {
         randomLoad()
         c.JSON(200, gin.H{
             "message": generateProducts(),
@@ -28,7 +32,6 @@ func main() {
 }
 
 func randomString(length int) string {
-    rand.Seed(time.Now().UTC().UnixNano())
     const chars = "abcdefghijklmnopqrstuvwxyz0123456789"
     result := make([]byte, length)
     for i := 0; i < length; i++ {
@@ -38,7 +41,6 @@ func randomString(length int) string {
 }
 
 func generateProducts() string {
-    rand.Seed(time.Now().UTC().UnixNano())
     var xml = "\n\t" + ""
     var N = rand.Intn(10)
     for i := 0; i < N; i++ {
@@ -48,7 +50,6 @@ func generateProducts() string {
 }
 
 func randomLoad() {
-    rand.Seed(time.Now().UTC().UnixNano())
     var i = rand.Intn(100)
     var d = 0
     if i < 20 {
@@ -58,5 +59,5 @@ func randomLoad() {
     } else if i < 95 {
         d = 200 + rand.Intn(500)
     }
-    time.Sleep(time.Duration(d*5) * time.Millisecond)
+    time.Sleep(time.Duration(d) * time.Millisecond)
 }
