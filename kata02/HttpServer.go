@@ -22,7 +22,7 @@ func main() {
     r.GET("/xml", func(c *gin.Context) {
         if rand.Intn(100) < 10 {
             c.JSON(500, gin.H {
-                "message":"Houston",
+                "message":"Houston, we got a problem!",
             })
         } else {
             randomLoad()
@@ -45,11 +45,12 @@ func randomString(length int) string {
 }
 
 func generateProducts() string {
-    var xml = "\n\t" + ""
+    var xml = "\n<MyBasket>"
     var N = rand.Intn(10)
     for i := 0; i < N; i++ {
         xml = xml + "\n\t<Product>\n\t\t<sku>" + randomString(40) + "</sku>\n\t\t<quantity>42</quantity>\n\t</Product>"
     }
+    xml = xml + "\n</MyBasket>"
     return xml
 }
 
