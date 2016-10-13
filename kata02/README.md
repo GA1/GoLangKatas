@@ -6,4 +6,4 @@ to run a server on port 3333
 
 return xml from server
 
-```curl -v localhost:3333/xml```
+```curl -v localhost:3333/xml ```
