@@ -22,13 +22,11 @@ func main() {
     r.GET("/xml", func(c *gin.Context) {
         if rand.Intn(100) < 10 {
             c.JSON(500, gin.H {
-                "message": generateProducts(),
+                "message":"Houston",
             })
         } else {
             randomLoad()
-            c.JSON(200, gin.H {
-                "message": generateProducts(),
-            })
+            c.String(200, generateProducts())
         }
     })
 
