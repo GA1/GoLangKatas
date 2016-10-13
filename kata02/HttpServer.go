@@ -16,12 +16,11 @@ func main() {
 
     r := gin.Default()
     r.GET("/ping", func(c *gin.Context) {
+        randomLoad()
         c.JSON(200, gin.H{
-            "message": randomString(5),
+            "message": generateProducts(),
         })
     })
-
-    fmt.Println(generateProducts())
 
     portStr := strconv.Itoa(*port)
     fmt.Println("The port chosen is: " + portStr)
@@ -48,4 +47,16 @@ func generateProducts() string {
     return xml
 }
 
-
+func randomLoad() {
+    rand.Seed(time.Now().UTC().UnixNano())
+    var i = rand.Intn(100)
+    var d = 0
+    if i < 20 {
+        d = rand.Intn(10)
+    } else if i < 70 {
+        d = 50 + rand.Intn(50)
+    } else if i < 95 {
+        d = 200 + rand.Intn(500)
+    }
+    time.Sleep(time.Duration(d*5) * time.Millisecond)
+}
