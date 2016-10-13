@@ -20,7 +20,7 @@ func main() {
 
     r := gin.Default()
     r.GET("/xml", func(c *gin.Context) {
-        if rand.Intn(100) < 10 {
+        if rand.Intn(100) < 0 {
             c.JSON(500, gin.H {
                 "message":"Houston, we got a problem!",
             })
