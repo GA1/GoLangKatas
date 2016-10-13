@@ -20,10 +20,16 @@ func main() {
 
     r := gin.Default()
     r.GET("/xml", func(c *gin.Context) {
-        randomLoad()
-        c.JSON(200, gin.H{
-            "message": generateProducts(),
-        })
+        if rand.Intn(100) < 10 {
+            c.JSON(500, gin.H {
+                "message": generateProducts(),
+            })
+        } else {
+            randomLoad()
+            c.JSON(200, gin.H {
+                "message": generateProducts(),
+            })
+        }
     })
 
     portStr := strconv.Itoa(*port)
