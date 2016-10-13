@@ -6,6 +6,8 @@ import (
     "encoding/json"
     "time"
     "math/rand"
+    "net/http"
+    "io/ioutil"
 )
 
 type Stock struct {
@@ -39,17 +41,11 @@ func (p Parser) xmlToJson(xmlData []byte) {
 
 func main() {
 
-    xmlData := []byte(`<?xml version="1.0" encoding="UTF-8" ?>
-    <ProductList>
-        <Product>
-            <sku>ABC123</sku>
-            <quantity>2</quantity>
-        </Product>
-        <Product>
-            <sku>ABC124</sku>
-            <quantity>20</quantity>
-        </Product>
-    </ProductList>`)
+    resp, _ := http.Get("http://0.0.0.0:5555/xml")
+    body, _ := ioutil.ReadAll(resp.Body)
+    defer resp.Body.Close()
+
+    xmlData := []byte(body)
 
     done := make(chan string)
 

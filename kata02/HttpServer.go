@@ -45,12 +45,12 @@ func randomString(length int) string {
 }
 
 func generateProducts() string {
-    var xml = "\n<MyBasket>"
+    var xml = "\n<ProductList>"
     var N = rand.Intn(10)
     for i := 0; i < N; i++ {
         xml = xml + "\n\t<Product>\n\t\t<sku>" + randomString(40) + "</sku>\n\t\t<quantity>42</quantity>\n\t</Product>"
     }
-    xml = xml + "\n</MyBasket>"
+    xml = xml + "\n</ProductList>"
     return xml
 }
 
