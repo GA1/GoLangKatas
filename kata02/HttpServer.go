@@ -9,8 +9,6 @@ import (
     "time"
 )
 
-// const letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
 func main() {
     var port = flag.Int("port", 1234, "The port of the service")
     flag.Parse()
