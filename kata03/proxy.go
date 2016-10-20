@@ -1,82 +1,62 @@
 package main
 
 import (
-    "github.com/gin-gonic/gin"
-    "encoding/xml"
-    "fmt"
     "flag"
-    "encoding/json"
+    "encoding/xml"
     "strconv"
-    "time"
-    "errors"
+    "fmt"
+    "github.com/gin-gonic/gin"
+    "io/ioutil"
     "math/rand"
     "net/http"
-    "io/ioutil"
+    "time"
 )
 
-type Stock struct {
-    ProductList  []struct {
-        Sku string `xml:"sku" json:"sku"`
-        Quantity  int `xml:"quantity" json:"quantity"`
+type DataFormat struct {
+    ProductList []struct {
+        Sku      string `xml:"sku" json:"sku"`
+        Quantity int    `xml:"quantity" json:"quantity"`
     } `xml:"Product" json:"products"`
 }
 
-type Parser struct {
-    close chan string
+const globalTimeout = 250 * time.Millisecond
+
+func main() {
+    var port = flag.Int("port", 1234, "The port of the service")
+    flag.Parse()
+    fmt.Println(*port)
+    portStr := strconv.Itoa(*port)
+
+    rand.Seed(time.Now().Unix())
+    a := gin.Default()
+    a.GET("/json", func(c *gin.Context) {
+        result := getDataFromBackend("http://127.0.0.1:" + "5555" + "/xml")
+
+        select {
+        case r := <-result:
+            fmt.Printf("I have something! %s\n", r)
+            if data, err := parse(r); nil == err {
+                c.JSON(200, data)
+            } else {
+                fmt.Printf("I got an error parsing the data: %s\n", err)
+                c.String(500, fmt.Sprintf("%s", err))
+            }
+        case <-time.After(globalTimeout):
+            fmt.Println("Timeout!")
+            c.String(500, "Backend did not respond")
+        }
+
+    })
+    a.Run(":" + portStr)
 }
 
-func (p Parser) xmlToJson(xmlData []byte) {
-
-    time.Sleep(time.Duration(rand.Int31n(1999)) * time.Millisecond)
-    var stock Stock
-    errXml := xml.Unmarshal(xmlData, &stock)
-    if errXml != nil {
-        return
-    }
-
-    stockJson, errJson := json.Marshal(stock)
-
-    if errJson != nil {
-        return
-    }
-
-    p.close <- string(stockJson)
-}
-
-func callBackend() (string, error) {
-    resp, err1 := http.Get("http://0.0.0.0:5555/xml")
-    if err1 != nil {
-        return "", err1
-    }
-    body, err2 := ioutil.ReadAll(resp.Body)
-    if err2 != nil {
-        return "", err2
-    }
-    if resp.StatusCode == 500 {
-        return "", errors.New(string(body[:]))
-    }
-    defer resp.Body.Close()
-    xmlData := []byte(body)
-
-    done := make(chan string)
-
-    var parser Parser
-
-    for i := 0; i < 10; i++ {
-        parser = Parser{done}
-        go parser.xmlToJson(xmlData)
-    }
-    supu := <-done
-    return supu, nil
-}
-
-func generate(url string) chan ([]byte) {
+func getDataFromBackend(backend string) <-chan []byte {
     work := make(chan []byte)
     go func() {
-        resp, err := http.Get(url)
+        resp, err := http.Get(backend)
+        defer resp.Body.Close()
         if err == nil {
-            defer resp.Body.close()
-            if body, err:= ioutil.ReadAll(resp.Body) {
+            if body, err := ioutil.ReadAll(resp.Body); err == nil {
                 work <- body
             }
         }
@@ -84,34 +64,13 @@ func generate(url string) chan ([]byte) {
     return work
 }
 
-func main() {
+func parse(xmlData []byte) (*DataFormat, error) {
+    data := &DataFormat{}
+    err := xml.Unmarshal(xmlData, data)
+    if nil != err {
+        fmt.Println("Error unmarshalling from XML", err)
+        return nil, err
+    }
 
-    var port = flag.Int("port", 1234, "The port of the service")
-    flag.Parse()
-    fmt.Println(*port)
-
-    r := gin.Default()
-    r.GET("/json", func(c *gin.Context) {
-        result = generate("http://0.0.0.0:5555/xml")
-        select {
-            case r := <- result:
-                case
-
-        }
-        str, err := callBackend()
-        if err == nil {
-            c.JSON(200, str)
-            } else {
-            c.JSON(500, err)
-        }
-    })
-
-    portStr := strconv.Itoa(*port)
-    fmt.Println("The port chosen is: " + portStr)
-    r.Run("0.0.0.0:" + portStr)
-
-    fmt.Println("!!!")
-    fmt.Println(callBackend())
-
+    return data, nil
 }
-
