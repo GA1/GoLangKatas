@@ -1,9 +1,12 @@
 package main
 
 import (
+    "github.com/gin-gonic/gin"
     "encoding/xml"
     "fmt"
+    "flag"
     "encoding/json"
+    "strconv"
     "time"
     "math/rand"
     "net/http"
@@ -39,10 +42,17 @@ func (p Parser) xmlToJson(xmlData []byte) {
     p.close <- string(stockJson)
 }
 
-func main() {
+func callBackend() (string, error) {
+    resp, err1 := http.Get("http://0.0.0.0:5555/xml")
+    if err1 != nil {
+        return "", err1
+    }
+    body, err2 := ioutil.ReadAll(resp.Body)
+    if err2 != nil {
+        return "", err2
+    }
 
-    resp, _ := http.Get("http://0.0.0.0:5555/xml")
-    body, _ := ioutil.ReadAll(resp.Body)
+
     defer resp.Body.Close()
 
     xmlData := []byte(body)
@@ -57,7 +67,38 @@ func main() {
     }
 
     supu := <-done
-    fmt.Println(supu)
-    fmt.Println("The end")
+    return supu, nil
+}
+
+func main() {
+
+    var port = flag.Int("port", 1234, "The port of the service")
+    flag.Parse()
+    fmt.Println(*port)
+
+    r := gin.Default()
+    r.GET("/json", func(c *gin.Context) {
+        if rand.Intn(100) < 0 {
+            c.JSON(500, gin.H {
+                "message":"Houston, we got a problem!",
+            })
+        } else {
+            str, err := callBackend()
+            if err == nil {
+                c.String(200, str)
+            } else {
+                c.String(500, "err")
+            }
+
+        }
+    })
+
+    portStr := strconv.Itoa(*port)
+    fmt.Println("The port chosen is: " + portStr)
+    r.Run("0.0.0.0:" + portStr)
+
+    fmt.Println("!!!")
+    fmt.Println(callBackend())
+
 }
 
