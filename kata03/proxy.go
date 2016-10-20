@@ -8,6 +8,7 @@ import (
     "encoding/json"
     "strconv"
     "time"
+    "errors"
     "math/rand"
     "net/http"
     "io/ioutil"
@@ -51,10 +52,10 @@ func callBackend() (string, error) {
     if err2 != nil {
         return "", err2
     }
-
-
+    if resp.StatusCode == 500 {
+        return "", errors.New(string(body[:]))
+    }
     defer resp.Body.Close()
-
     xmlData := []byte(body)
 
     done := make(chan string)
@@ -65,10 +66,13 @@ func callBackend() (string, error) {
         parser = Parser{done}
         go parser.xmlToJson(xmlData)
     }
-
     supu := <-done
     return supu, nil
 }
+
+// func generator() chan int {
+
+// }
 
 func main() {
 
@@ -78,18 +82,11 @@ func main() {
 
     r := gin.Default()
     r.GET("/json", func(c *gin.Context) {
-        if rand.Intn(100) < 0 {
-            c.JSON(500, gin.H {
-                "message":"Houston, we got a problem!",
-            })
+        str, err := callBackend()
+        if err == nil {
+            c.JSON(200, str)
         } else {
-            str, err := callBackend()
-            if err == nil {
-                c.String(200, str)
-            } else {
-                c.String(500, "err")
-            }
-
+            c.JSON(500, err)
         }
     })
 
