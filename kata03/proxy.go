@@ -70,9 +70,19 @@ func callBackend() (string, error) {
     return supu, nil
 }
 
-// func generator() chan int {
-
-// }
+func generate(url string) chan ([]byte) {
+    work := make(chan []byte)
+    go func() {
+        resp, err := http.Get(url)
+        if err == nil {
+            defer resp.Body.close()
+            if body, err:= ioutil.ReadAll(resp.Body) {
+                work <- body
+            }
+        }
+    }()
+    return work
+}
 
 func main() {
 
@@ -82,10 +92,16 @@ func main() {
 
     r := gin.Default()
     r.GET("/json", func(c *gin.Context) {
+        result = generate("http://0.0.0.0:5555/xml")
+        select {
+            case r := <- result:
+                case
+
+        }
         str, err := callBackend()
         if err == nil {
             c.JSON(200, str)
-        } else {
+            } else {
             c.JSON(500, err)
         }
     })
